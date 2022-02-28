@@ -2,12 +2,17 @@ package web
 
 import (
 	"errors"
+	"io/fs"
+	"net/http"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/sirupsen/logrus"
 	"github.com/zekrotja/webwol/internal/config"
 	"github.com/zekrotja/webwol/internal/database"
+	"github.com/zekrotja/webwol/internal/embedded"
 	"github.com/zekrotja/webwol/internal/web/controllers"
 	"github.com/zekrotja/webwol/internal/web/middleware"
 	"github.com/zekrotja/webwol/pkg/auth"
@@ -53,6 +58,18 @@ func New(
 	controllers.NewAuthController(api.Group("/auth"), auth, hasher, db)
 	controllers.NewDeviceController(api.Group("/devices", middleware.Auth(auth)), db)
 
+	fs, err := getFS()
+	if err != nil {
+		return
+	}
+	ws.app.Use(filesystem.New(filesystem.Config{
+		Root:         fs,
+		Browse:       true,
+		Index:        "index.html",
+		MaxAge:       3600,
+		NotFoundFile: "index.html",
+	}))
+
 	return
 }
 
@@ -82,4 +99,24 @@ func (ws *WebServer) errorHandler(ctx *fiber.Ctx, err error) error {
 
 	return ws.errorHandler(ctx,
 		fiber.NewError(fiber.StatusInternalServerError, err.Error()))
+}
+
+func getFS() (f http.FileSystem, err error) {
+	fsys, err := fs.Sub(embedded.FrontendFiles, "webdist")
+	if err != nil {
+		return
+	}
+	_, err = fsys.Open("index.html")
+	if os.IsNotExist(err) {
+		logrus.Info("using web files form web/dist")
+		f = http.Dir("web/dist")
+		err = nil
+		return
+	}
+	if err != nil {
+		return
+	}
+	logrus.Info("using embedded web files")
+	f = http.FS(fsys)
+	return
 }
