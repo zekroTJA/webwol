@@ -15,3 +15,6 @@ cmd/test/*
 
 data/
 .env
+
+internal/embedded/webdist/*
+!internal/embedded/webdist/keep
