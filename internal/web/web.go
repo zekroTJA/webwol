@@ -42,8 +42,8 @@ func New(
 	if co := ws.cfg.Instance().CorsOrigins; co != "" {
 		ws.app.Use(cors.New(cors.Config{
 			AllowOrigins:     co,
-			AllowMethods:     "GET,POST,DELETE,PUT",
-			AllowHeaders:     "*",
+			AllowMethods:     "GET,POST,DELETE,PUT,OPTIONS",
+			AllowHeaders:     "content-type,accept,authorization",
 			AllowCredentials: true,
 		}))
 	}
