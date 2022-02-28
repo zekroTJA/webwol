@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  traefik:
+    image: "traefik:latest"
+    command:
+      - "--log.level=DEBUG"
+      - "--providers.docker"
+      - "--providers.file.directory=/etc/traefik/dynamic_conf"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--providers.docker.exposedByDefault=false"
+      - "--certificatesResolvers.le.acme.email=your@email" # ⚠️ <- enter your email here
+      - "--certificatesResolvers.le.acme.storage=/etc/certstore/acme.json"
+      - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=http"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./traefik/config:/etc/traefik/dynamic_conf"
+      - "/etc/cert:/etc/cert:ro"
+      - "/etc/certstore:/etc/certstore"
+      - "/etc/localtime:/etc/localtime:ro"
+    network_mode: "host"
+    restart: unless-stopped
+
+  webwol:
+    image: zekro/webwol:arm64
+    volumes:
+      - "./webwol:/app/data"
+    restart: unless-stopped
+    environment:
+      WW_BINDADDRESS: "0.0.0.0:9090"
+    network_mode: "host"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.webwol.entrypoints: "https"
+      traefik.http.routers.webwol.tls: "true"
+      traefik.http.routers.webwol.tls.certresolver: "le"
+      traefik.http.routers.webwol.rule: "Host(`some.dyndns.host`) && PathPrefix(`/`)"
+      traefik.http.services.webwol.loadbalancer.server.port: "9090"
