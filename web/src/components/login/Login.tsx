@@ -32,6 +32,7 @@ export const Login: React.FC<Props> = ({ onSubmit }) => {
           type="password"
           value={password}
           onInput={(e) => setPassword(e.currentTarget.value)}
+          onKeyPress={(e) => e.code === "Enter" && onSubmit(password)}
         />
       </Section>
       <Section>
