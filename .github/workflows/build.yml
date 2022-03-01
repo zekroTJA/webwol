@@ -39,7 +39,7 @@ jobs:
             GOOS=${{ matrix.goos }}
             GOARCH=${{ matrix.goarch }}
           tags: |
-            ghcr.io/zekrotja/dcdl:${{ matrix.goarch }}
+            ghcr.io/zekrotja/webwol:${{ matrix.goarch }}
 
   frontend:
     name: Build Frontend Artifacts
