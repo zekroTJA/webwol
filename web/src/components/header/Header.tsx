@@ -17,6 +17,7 @@ const StyledHeader = styled.header`
   justify-content: space-between;
   align-items: center;
   background: ${(p) => p.theme.accentGrad};
+  box-shadow: 0 -1.2em 3em 0 ${(p) => p.theme.accent};
 `;
 
 const Section = styled.section`
