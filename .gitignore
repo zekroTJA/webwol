@@ -15,6 +15,7 @@ cmd/test/*
 
 data/
 .env
+.vscode
 
 internal/embedded/webdist/*
 !internal/embedded/webdist/keep
