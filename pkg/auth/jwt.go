@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"sync"
 	"time"
 
 	"github.com/robbert229/jwt"
@@ -14,6 +15,8 @@ type JwtAuthConfig struct {
 }
 
 type JwtAuth struct {
+	mx sync.Mutex
+
 	cfg JwtAuthConfig
 	alg jwt.Algorithm
 }
@@ -40,6 +43,13 @@ func NewJwtAuth(cfg ...JwtAuthConfig) (a *JwtAuth, err error) {
 }
 
 func (a *JwtAuth) GetToken(ident string) (token string, exp time.Time, err error) {
+	// Currently, the generation of JWTs in multiple go routines at
+	// the same time will result in a panic.
+	// See: https://github.com/robbert229/jwt/issues/17
+	// TODO: Switch to a better JWT implementation
+	a.mx.Lock()
+	defer a.mx.Unlock()
+
 	exp = time.Now().Add(a.cfg.Lifetime)
 	claims := jwt.NewClaim()
 	claims.Set("sub", ident)
