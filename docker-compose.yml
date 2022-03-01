@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   traefik:
-    image: "traefik:latest"
+    image: traefik:latest
     command:
       - "--log.level=DEBUG"
       - "--providers.docker"
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
 
   webwol:
-    image: zekro/webwol:arm64
+    image: ghcr.io/zekrotja/webwol:arm64
     volumes:
       - "./webwol:/app/data"
     restart: unless-stopped
@@ -35,5 +35,5 @@ services:
       traefik.http.routers.webwol.entrypoints: "https"
       traefik.http.routers.webwol.tls: "true"
       traefik.http.routers.webwol.tls.certresolver: "le"
-      traefik.http.routers.webwol.rule: "Host(`some.dyndns.host`) && PathPrefix(`/`)"
+      traefik.http.routers.webwol.rule: "Host(`some.dyndns.host`) && PathPrefix(`/`)" # ⚠️ <- enter your DynDNS Domain here
       traefik.http.services.webwol.loadbalancer.server.port: "9090"
