@@ -3,10 +3,12 @@ import { useNavigate } from "react-router";
 import { APIError } from "../api/errors";
 import { Device } from "../api/models";
 import { ClientInstance } from "../services/api";
+import useAuth from "./useAuth";
 import { useSnackbar } from "./useSnackbar";
 
 export default function useDevice(uid: string) {
   const [device, setDevice] = useState({ uid } as Device);
+  const { logout } = useAuth(true);
   const { show } = useSnackbar();
   const nav = useNavigate();
 
@@ -52,7 +54,7 @@ export default function useDevice(uid: string) {
       .catch((err) => {
         if (err instanceof APIError) {
           if (err.code === 401) {
-            nav("/login");
+            logout();
           } else if (err.code === 404) {
             show("error", "Device not found.");
           } else {

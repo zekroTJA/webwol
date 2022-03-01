@@ -5,6 +5,9 @@ import { LoginRoute } from "./routes/Login";
 import { DefaultTheme } from "./theme/theme";
 import { Snackbar } from "./components/snackbar";
 import { DeviceRoute } from "./routes/Device";
+import { Header } from "./components/header";
+import { EventEmitter } from "events";
+import { useRef } from "react";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -23,29 +26,37 @@ const GlobalStyle = createGlobalStyle`
 
 const Container = styled.div`
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 const RouterOutlet = styled.div`
   padding: 1em;
-  height: 100%;
   overflow-y: auto;
+  height: 100%;
 `;
 
 const App: React.FC = () => {
+  const emitterRef = useRef(new EventEmitter());
+
   return (
     <>
       <ThemeProvider theme={DefaultTheme}>
         <Container>
-          <RouterOutlet>
-            <BrowserRouter>
+          <BrowserRouter>
+            <Header onRefresh={() => emitterRef.current.emit("refresh")} />
+            <RouterOutlet>
               <Routes>
-                <Route index element={<MainRoute />} />
+                <Route
+                  index
+                  element={<MainRoute refreshEmitter={emitterRef.current} />}
+                />
                 <Route path=":uid" element={<DeviceRoute />} />
                 <Route path="login" element={<LoginRoute />} />
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
-            </BrowserRouter>
-          </RouterOutlet>
+            </RouterOutlet>
+          </BrowserRouter>
           <Snackbar />
           <GlobalStyle />
         </Container>

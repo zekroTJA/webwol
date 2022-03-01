@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { APIError } from "../api/errors";
 import { ClientInstance } from "../services/api";
+import { useStore } from "../services/store";
 import { useSnackbar } from "./useSnackbar";
 
-export default function useAuth() {
+export default function useAuth(skipInitCheck = false) {
   const [isInitialized, setIsInitialized] = useState<boolean | null>(null);
+  const setLoggedIn = useStore((s) => s.setLoggedIn);
   const { show } = useSnackbar();
   const nav = useNavigate();
 
@@ -30,7 +32,10 @@ export default function useAuth() {
 
   const login = (password: string) =>
     ClientInstance.login(password)
-      .then(() => nav("/"))
+      .then(() => {
+        setLoggedIn(true);
+        nav("/");
+      })
       .catch((err) => {
         if (err instanceof APIError) {
           if (err.code === 401) {
@@ -39,11 +44,19 @@ export default function useAuth() {
         }
       });
 
-  useEffect(() => {
-    ClientInstance.isInitialized().then(({ is_initialized }) =>
-      setIsInitialized(is_initialized)
-    );
-  }, []);
+  const logout = () => {
+    setLoggedIn(false);
+    ClientInstance.logout();
+    nav("/login");
+  };
 
-  return { isInitialized, init, login };
+  if (!skipInitCheck) {
+    useEffect(() => {
+      ClientInstance.isInitialized().then(({ is_initialized }) =>
+        setIsInitialized(is_initialized)
+      );
+    }, []);
+  }
+
+  return { isInitialized, init, login, logout };
 }

@@ -42,6 +42,10 @@ export class Client {
     return {};
   }
 
+  logout() {
+    this.token = undefined;
+  }
+
   // --- DEVICES ---
 
   list(): Promise<Device[]> {
