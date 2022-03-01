@@ -7,6 +7,11 @@ export const Container = styled.div`
   margin-bottom: 1em;
   height: 5em;
   cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
 
   @media screen and (min-width: 52em) {
     max-width: 25em;
