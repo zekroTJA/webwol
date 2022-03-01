@@ -5,14 +5,20 @@ import useDevices from "../hooks/useDevices";
 
 interface Props {}
 
-const Container = styled.div``;
+const Container = styled.div`
+  width: 100%;
+  @media screen and (min-width: 52em) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+`;
 
 export const MainRoute: React.FC<Props> = ({}) => {
   const { devices, wakeUp } = useDevices();
   const nav = useNavigate();
 
   const _onEdit = (uid: string) => {
-    console.log(uid);
     nav("/" + uid);
   };
 
