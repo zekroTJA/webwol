@@ -31,7 +31,7 @@ const Container = styled.div`
 `;
 
 const RouterOutlet = styled.div`
-  padding: 1em;
+  padding: 2em 1em 0em 1em;
   overflow-y: auto;
   height: 100%;
 `;
