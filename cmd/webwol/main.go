@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/zekroTJA/shinpuru/pkg/random"
@@ -47,6 +48,7 @@ func main() {
 
 	auth, err := auth.NewJwtAuth(auth.JwtAuthConfig{
 		SigningKey: cfg.Instance().JWTSigningKey,
+		Lifetime:   time.Duration(cfg.Instance().JWTLifetimeSeconds) * time.Second,
 	})
 	if err != nil {
 		logrus.WithError(err).Fatal("initializing auth failed")
