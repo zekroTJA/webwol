@@ -37,6 +37,7 @@ type InitializationRequest struct {
 }
 
 type PingResponse struct {
-	Successful bool  `json:"successful"`
-	RTT        int64 `json:"rtt"`
+	Successful  bool    `json:"successful"`
+	RTT         int64   `json:"rtt"`
+	SuccessRate float32 `json:"success_rate"`
 }

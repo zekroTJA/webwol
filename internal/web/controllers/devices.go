@@ -101,6 +101,10 @@ func (c *DevicseController) wake(ctx *fiber.Ctx) (err error) {
 
 func (c *DevicseController) ping(ctx *fiber.Ctx) (err error) {
 	id := ctx.Params("id")
+	repeat, err := util.QueryInt(ctx, "repeat", 1)
+	if err != nil {
+		return fiber.ErrBadRequest
+	}
 
 	dev, err := c.db.GetDevice(id)
 	if err != nil {
@@ -112,9 +116,10 @@ func (c *DevicseController) ping(ctx *fiber.Ctx) (err error) {
 	}
 
 	var res models.PingResponse
-	stats, err := imcp.Ping(dev.IPAddress)
-	res.Successful = err == nil && stats.PacketLoss == 0
+	stats, err := imcp.Ping(dev.IPAddress, repeat)
+	res.Successful = err == nil && stats.PacketLoss < 100
 	res.RTT = stats.AvgRtt.Microseconds()
+	res.SuccessRate = 1 - float32(stats.PacketLoss)/100
 
 	return ctx.JSON(res)
 }
